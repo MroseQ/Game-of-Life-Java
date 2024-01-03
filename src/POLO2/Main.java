@@ -8,7 +8,6 @@ public class Main {
             @Override
             public void run() {
                 Window window = new Window();
-                window.show();
             }
         });
     }
