@@ -1,124 +1,70 @@
 package POLO2;
 
 import java.awt.*;
-import java.util.Random;
 
-import static POLO2.Settings.N;
-
-public interface Organism {
+public abstract class Organism {
     boolean isDead, isAfterAction;
-    int nextID = 0;
+    static int nextID = 0;
     int stun, strength, initiative, initialStrength, initialInitiative, aliveSince;
     String id,prefix;
     World world;
     Position position, previousPosition;
     Color color;
 
-    Organism(OrganismBuilder builder)
-    {
-        if (id == null) {
-            this.id = prefix + getNextID();
-        }
-        else {
-            this.id = builder.id;
-        }
-        this.stun = 0;
-        this.strength = builder.strength;
-        this.initialStrength = builder.strength;
-        this.initiative = builder.initiative;
-        this.initialInitiative = builder.initiative;
-        this.world = builder.world;
-        this.world.pushToWorld(this);
-        this.previousPosition = new Position(-1,-1);
-        this.isAfterAction = builder.isAfterAction;
-        this.aliveSince = this.world.turn;
-        this.isDead = false;
+    abstract void action();
+    abstract void collision(Organism other);
 
-        if (builder.position == null) {
-            int newX, newY;
-            do {
-                Random random = new Random();
-                newX = random.nextInt(N) + 1;
-                newY = random.nextInt(N) + 1;
-            } while (this.world.isObjectOnPosition(newX,newY));
-            this.position = new Position(newX,newY);
-        }
-        else {
-            this.position = builder.position;
-        }
+    public void createChild(World world,Position position){
+        new OrganismBuilder(world).setPosition(position).build(this.getClass().getSimpleName());
     }
 
-    public static class OrganismBuilder{
-        boolean isAfterAction;
-        int strength, initiative;
-        String id,prefix;
-        World world;
-
-        Position position;
-        OrganismBuilder(String prefix,int strength,int initiative, World world, boolean isAfterAction){
-            this.prefix = prefix;
-            this.strength = strength;
-            this.initiative = initiative;
-            this.world = world;
-            this.isAfterAction = isAfterAction;
-        }
-
-        public OrganismBuilder setID(String id){
-            this.id = id;
-            return this;
-        }
-
-        public OrganismBuilder setPosition(Position p){
-            this.position = p;
-            return this;
-        }
-
-        public Organism build(){
-            return new Organism(this);
-        }
+    public Color paint(){
+        return this.color;
     }
 
-    void action();
-    void collision(Organism other);
+    public boolean isAfterTurn() { return this.isAfterAction; }
 
-    void death(Organism killer);
-    void winBattle(Organism victim);
-    Color paint();
+    public void setAfterAction(boolean b) { this.isAfterAction = b; }
 
-    default boolean isAfterTurn() { return this.isAfterAction; }
-    default void setAfterAction(boolean b) { this.isAfterAction = b; }
+    public int getStun() { return this.stun; }
+    public void setStun(int value) { this.stun = value; }
 
-    default int getStun() { return this.stun; }
-    default void setStun(int value) { this.stun = value; }
+    public int getAliveSince() { return aliveSince; }
+    public void setAliveSince(int turn) { this.aliveSince = turn; }
 
-    default int getAliveSince() { return aliveSince; }
-    default void setAliveSince(int turn) { this.aliveSince = turn; }
+    static int getNextID() { return Organism.nextID++; }
+    static void setNextID(int value) { Organism.nextID = value; }
 
-    static int getNextID() { return nextID++; }
-    static void setNextID(int value) { nextID = value; }
+    public String getID() { return id; }
+    public void setID(String message) { this.id = message; }
 
-    default String getID() { return id; }
-    default void setID(String message) { this.id = message; }
+    public int getStrength() { return strength; }
+    public void setStrength(int value) { this.strength = value; }
+    public void incStrength() { this.strength++; }
 
-    default int getStrength() { return strength; }
-    default void setStrength(int value) { this.strength = value; }
-    default void incStrength() { this.strength++; }
+    public boolean getIsDead() { return isDead; }
+    public void setIsDead(boolean isDead) { this.isDead = isDead; }
 
-    default boolean getIsDead() { return isDead; }
-    default void setIsDead(boolean isDead) { this.isDead = isDead; }
+    public Position getPosition() { return this.position; }
+    public void setPosition(Position p) { this.position = p; }
+    public void setPosition(int x, int y) { this.position = new Position(x,y); }
+    public void addPosition(int x, int y) { this.position = new Position(this.position.getX()+x,this.position.getY()+y); }
 
-    default Position getPosition() { return this.position; }
-    default void setPosition(Position p) { this.position.setPosition(p); }
-    default void setPosition(int x, int y) { this.position.setPosition(new Position(x,y)); }
-    default void addPosition(int x, int y) { this.position.setPosition(new Position(this.position.getX()+x,this.position.getY()+y)); }
+    public int getInitiative() { return this.initiative; }
+    public void setInitiative(int value) {this.initiative = value;}
+    public void incInitiative() { this.initiative++; }
 
-    default int getInitiative() { return this.initiative; }
-    default void incInitiative() { this.initiative++; }
+    public void setInitialInitiative(int value) {
+        this.initialInitiative = value;
+    }
+    public void setInitialStrength(int value){
+        this.initialStrength = value;
+    }
+    public Position getPreviousPosition() { return this.previousPosition; }
+    public void setPreviousPosition(Position p) { this.previousPosition = p; }
 
-    default Position getPreviousPosition() { return this.previousPosition; }
-    default void setPreviousPosition(Position p) { this.previousPosition = p; }
-
-    default World getWorld() { return world; }
-    default void setWorld(World world) { this.world = world; }
+    public void setPrefix(String string) { this.prefix = string;}
+    public World getWorld() { return world; }
+    public void setWorld(World world) { this.world = world; }
 
 }

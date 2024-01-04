@@ -2,20 +2,22 @@ package POLO2;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
-import javax.swing.border.CompoundBorder;
 import javax.swing.plaf.BorderUIResource;
-import javax.swing.plaf.basic.DefaultMenuLayout;
 import java.awt.*;
-import java.util.concurrent.TimeUnit;
 
 import static POLO2.Settings.*;
 
 public class Window {
-    public JFrame window;
-    private JPanel content,legend, footer, events;
-    private JButton nextTurnButton, saveButton, loadButton;
+    public final JFrame window;
+    private final JPanel content;
+    private final JPanel legend;
+    private final JPanel footer;
+    private final JPanel events;
+    private final JButton nextTurnButton;
+    private final JButton saveButton;
+    private final JButton loadButton;
 
-    private JLabel feedback;
+    private final JLabel feedback;
     public Window() {
         window = new JFrame();
         window.setTitle("Game Of Life Java");

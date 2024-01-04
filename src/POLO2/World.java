@@ -7,13 +7,13 @@ import static POLO2.Settings.N;
 import static java.util.Collections.swap;
 
 public class World {
-    int size;
+    final int size;
     int turn;
-    Legend legend;
-    List<SystemEvent> eventList;
-    List<Organism> worldOrganisms;
+    final Legend legend;
+    List<SystemEvent> eventList = new ArrayList<>();
+    List<Organism> worldOrganisms = new ArrayList<>();
 
-    World(int size,int turn){
+    World(){
         this.size = N;
         this.turn = 0;
         this.legend = new Legend();
@@ -23,10 +23,10 @@ public class World {
         sortOrganisms();
         for (Organism var : worldOrganisms) {
             if (var.isAfterTurn()) {
-                this.pushEvent(new SystemEvent("Obiekt " + var.getID() + " nie mial akcji."));
+                this.pushEvent(new SystemEvent("Object " + var.getID() + " didn't have their action."));
                 var.setAfterAction(false);
             } else if (var.getStun() != 0) {
-                this.pushEvent(new SystemEvent("Obiekt " + var.getID() + " jest zatrzymany."));
+                this.pushEvent(new SystemEvent("Object " + var.getID() + " is stunned."));
                 var.setStun(var.getStun() - 1);
             } else {
                 var.action();
@@ -36,7 +36,7 @@ public class World {
     }
     void paintTheWorld(){
 
-    };
+    }
     //void fetch();
     //void saveWorld();
     //World loadWorld();
@@ -71,7 +71,7 @@ public class World {
 
     public boolean isObjectOnPosition(int x, int y){
         for (Organism var : worldOrganisms) {
-            if (x == var.getPosition().getX() && y == var.getPosition().getY()) {
+            if (var.getPosition() != null && x == var.getPosition().getX() && y == var.getPosition().getY()) {
                 return true;
             }
         }
@@ -94,14 +94,12 @@ public class World {
         return null;
     }
 
-    //Organism utworzObiekt(string nazwaKlasy, string* id,int sila,int inicjatywa,Polozenie* polozenie, Swiat* swiat);
-
     public int getTurn() { return turn; }
 
     public void pushEvent(SystemEvent e){
         boolean doNotPush = false;
         for (SystemEvent event : eventList) {
-            if (e.getEvent() == event.getEvent()) {
+            if (e.getEvent().equals(event.getEvent())) {
                 doNotPush = true;
                 break;
             }
@@ -110,8 +108,8 @@ public class World {
             this.eventList.add(e);
         }
     }
-    void pushToRemove(Organism o){
-        this.pushEvent(new SystemEvent("Obiekt " + o.getID() + " umiera. [*]"));
+    public void pushToRemove(Organism o){
+        this.pushEvent(new SystemEvent("Object " + o.getID() + " dies. [*]"));
         o.setPosition(-1,-1);
         o.setIsDead(true);
         o.setAfterAction(true);
@@ -143,9 +141,4 @@ public class World {
             }
         }
     }
-    //static int _inputNumber();
-    //static std::string _inputName();
-    //static void _printLine(char code);
-    //static void _printSpace(int iterations);
-    //static std::pair<std::string, std::string> _getSlowo(std::string linia, char separator);
 }

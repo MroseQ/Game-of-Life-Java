@@ -4,18 +4,20 @@ import POLO2.*;
 
 import java.awt.*;
 
-public class Hedgehog implements Animal {
-    static Color color = new Color(212,134,0);
+public class Hedgehog extends Animal {
+    public static final Color color = new Color(212,134,0);
 
-    @Override
-    public void death(Organism killer){
-        this.getWorld().pushEvent(new SystemEvent(this.getID() + " has stunned " + killer.getID() + " for 2 turns."));
-        killer.setStun(2);
-        Animal.super.death(killer);
+    public Hedgehog(){
+        super();
+        this.setStrength(2);
+        this.setInitiative(3);
+        this.setPrefix("Hedgehog-");
     }
 
     @Override
-    public Organism createChild(World world, Position position) {
-        return new Organism.OrganismBuilder("Hedgehog:",2,3,world,true).setPosition(position).build();
+    protected void death(Animal killer){
+        this.getWorld().pushEvent(new SystemEvent(this.getID() + " has stunned " + killer.getID() + " for 2 turns."));
+        killer.setStun(2);
+        super.death(killer);
     }
 }

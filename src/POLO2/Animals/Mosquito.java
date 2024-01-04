@@ -6,13 +6,20 @@ import java.awt.*;
 import java.util.List;
 import java.util.Random;
 
-public class Mosquito implements Animal{
-    static Color color = new Color(150,0,0);
+public class Mosquito extends Animal{
+    public static final Color color = new Color(150,0,0);
+
+    public Mosquito(){
+        super();
+        this.setStrength(1);
+        this.setInitiative(1);
+        this.setPrefix("Mosquito-");
+    }
 
     @Override
-    public void death(Organism killer){
+    protected void death(Animal killer){
         Random random = new Random();
-        if(random.nextInt(2) == 0) Animal.super.death(killer);
+        if(random.nextInt(2) == 0) super.death(killer);
         else{
             this.setPosition(this.getPreviousPosition());
             this.getWorld().pushEvent(new SystemEvent(this.getID() + " has survived a battle with " + killer.getID() + " and has landed on " + this.getPosition().print()));
@@ -36,14 +43,9 @@ public class Mosquito implements Animal{
             if (counter != 0) {
                 this.getWorld().pushEvent(new SystemEvent( this.getID() + " has boosted its stats for +" + counter));
             }
-            Animal.super.action();
+            super.action();
         } catch (CustomException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public Organism createChild(World world, Position position) {
-        return new Organism.OrganismBuilder("Mosquito:",1,1,world,true).setPosition(position).build();
     }
 }

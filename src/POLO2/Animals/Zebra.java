@@ -6,12 +6,18 @@ import POLO2.Animals.Wolf;
 import java.awt.*;
 import java.util.List;
 
-public class Zebra implements Animal{
+public class Zebra extends Animal{
+    public static final Color color = new Color(150,150,150);
 
-    static Color color = new Color(150,150,150);
+    public Zebra(){
+        super();
+        this.setPrefix("Zebra-");
+        this.setStrength(4);
+        this.setInitiative(6);
+    }
 
     @Override
-    public void death(Organism killer){
+    protected void death(Animal killer){
         if(this.getWorld().getTurn() % 2 == 0){
             this.getWorld().pushEvent(new SystemEvent( this.getID() + " has ran away from " + killer.getID() + " to -> " + killer.getPreviousPosition().print() ));
             this.setPosition(killer.getPreviousPosition());
@@ -19,12 +25,12 @@ public class Zebra implements Animal{
                 this.setAfterAction(true);
             }
         }else{
-            Animal.super.death(killer);
+            super.death(killer);
         }
     }
 
     @Override
-    public void action(){
+    protected void action(){
         try {
             List<Position> nextToPositions = this.getPosition().getNeighbours(this.getPosition());
             Position wolfPosition = null;
@@ -37,7 +43,7 @@ public class Zebra implements Animal{
                 }
             }
             if (wolfPosition == null) {
-                Animal.super.action();
+                super.action();
             }
             else {
                 int distX = this.getPosition().getX() - wolfPosition.getX();
@@ -56,10 +62,5 @@ public class Zebra implements Animal{
         } catch (CustomException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public Organism createChild(World world, Position position) {
-        return new Organism.OrganismBuilder("Zebra:",4,6,world,true).setPosition(position).build();
     }
 }

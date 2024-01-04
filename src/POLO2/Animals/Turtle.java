@@ -3,19 +3,25 @@ package POLO2.Animals;
 import POLO2.*;
 
 import java.awt.*;
-import java.util.List;
 import java.util.Random;
 
-public class Turtle implements Animal {
-    static Color color = new Color(113,255,113);
+public class Turtle extends Animal {
+    public static final Color color = new Color(113,255,113);
+
+    public Turtle(){
+        super();
+        this.setPrefix("Turtle-");
+        this.setStrength(2);
+        this.setInitiative(1);
+    }
 
     @Override
-    public void death(Organism killer){
+    protected void death(Animal killer){
         if(killer.getStrength()<5){
             killer.setPosition(killer.getPreviousPosition());
             this.getWorld().pushEvent(new SystemEvent(this.getID() + " has defended himself from " + killer.getID()));
         }else{
-            Animal.super.death(killer);
+            super.death(killer);
         }
     }
 
@@ -23,12 +29,7 @@ public class Turtle implements Animal {
     public void action(){
         Random random = new Random();
         if(random.nextInt(100) >= 75){
-            Animal.super.action();
+            super.action();
         }
-    }
-
-    @Override
-    public Organism createChild(World world, Position position) {
-        return new Organism.OrganismBuilder("Turtle:",2,1,world,true).setPosition(position).build();
     }
 }

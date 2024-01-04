@@ -4,6 +4,7 @@ import POLO2.Animals.*;
 import POLO2.Plants.*;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +12,7 @@ import java.util.Map;
 public class Legend {
     private int length = 0, height = 0;
 
-    private List<Class<?>> classList;
+    private final List<Class<?>> classList = new ArrayList<>();
     private Map<String,Color> legendMap;
 
     void resize(List<Organism> list) {
@@ -41,7 +42,7 @@ public class Legend {
     Map<String,Color> namesToLegendMap(List<Class<?>> list) {
         Map<String,Color> tempMap = new HashMap<>();
         for (Class<?> objectClass : list) {
-            String s = objectClass.getName();
+            String s = objectClass.getSimpleName();
             tempMap.put(s,getClassColor(objectClass));
             if (s.length() > length) length = s.length();
         }
@@ -52,7 +53,7 @@ public class Legend {
         if(Mosquito.class.isAssignableFrom(objectClass)){
             return Mosquito.color;
         }else if(Sheep.class.isAssignableFrom(objectClass)){
-            return Sheep.color;;
+            return Sheep.color;
         }
         else if(Wolf.class.isAssignableFrom(objectClass)){
             return Wolf.color;
@@ -79,5 +80,5 @@ public class Legend {
             return new Color(255,255,255);
         }
     }
-};
+}
 

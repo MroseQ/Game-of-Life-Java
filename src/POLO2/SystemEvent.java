@@ -10,4 +10,4 @@ public class SystemEvent {
         }
         String getEvent() { return this.message; }
 
-};
+}

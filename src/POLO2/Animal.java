@@ -1,15 +1,18 @@
 package POLO2;
 
-import java.awt.*;
 import java.util.List;
 import java.util.Random;
 
 import static POLO2.Settings.N;
 
-public interface Animal extends Organism{
-    /*Zwierze(std::string prefiks, int sila, int inicjatywa, Polozenie* polozenie, Swiat* swiat, bool czyPoAkcji = false, std::string* id = nullptr)
-		: Organizm(prefiks, sila, inicjatywa, polozenie, swiat,  czyPoAkcji, id) {};*/
-    default void action(){
+public abstract class Animal extends Organism{
+
+    public Animal()
+    {
+        super();
+    }
+
+    protected void action(){
         Random random = new Random();
         int randX, randY;
         do {
@@ -32,8 +35,9 @@ public interface Animal extends Organism{
             this.getWorld().pushEvent(new SystemEvent("Movement of object " + this.getID() +
                     " onto -> " + this.getPosition().print()));
         }
-    };
-    default void collision(Organism other){
+    }
+
+    protected void collision(Organism other){
         Class<?> classOfOther = other.getClass();
         Class<?> classOfThis = this.getClass();
         if (classOfThis == classOfOther) {
@@ -46,21 +50,21 @@ public interface Animal extends Organism{
                 other.collision(this);
             }
             else {
-                this.fight(other);
+                this.fight((Animal) other);
             }
         }
     }
 
-    default void death(Organism killer){
+    protected void death(Animal killer){
         this.getWorld().pushToRemove(this);
         killer.winBattle(this);
     }
 
-    default void winBattle(Organism victim){
+    void winBattle(Animal victim){
         this.getWorld().pushEvent(new SystemEvent(this.getID() + " has won a battle with " + victim.getID()));
     }
 
-    default void fight(Organism defender){
+    void fight(Animal defender){
         if (defender.getStrength() > this.getStrength()) {
             this.death(defender);
         }
@@ -68,7 +72,7 @@ public interface Animal extends Organism{
             defender.death(this);
         }
     }
-    default void reproduce(Position alfa, Position beta) {
+    void reproduce(Position alfa, Position beta) {
         try {
             List<Position> possiblePlacesList = alfa.getNeighbours(beta);
             Position positionOfNewObject = null;
@@ -79,20 +83,16 @@ public interface Animal extends Organism{
                 }
             }
             if (positionOfNewObject != null) {
-                this.getWorld().pushEvent(new SystemEvent("Species " + this.getClass().getName()
+                this.getWorld().pushEvent(new SystemEvent("Species " + this.getClass().getSimpleName()
                         + " gave birth to a child on -> " + positionOfNewObject.print() ));
                 //IMPLEMENTACJA DODAWANIA DZIECKA
             }
             else {
-                this.getWorld().pushEvent(new SystemEvent("Species " + this.getClass().getName() + " was shy so there was no child."));
+                this.getWorld().pushEvent(new SystemEvent("Species " + this.getClass().getSimpleName() + " was shy so there was no child."));
             }
         }
         catch (CustomException e){
             System.out.println("Exception: " + e.getMessage());
         }
-    };
-    Organism createChild(World world,Position position);
-    default Color paint(){
-        return this.color;
-    };
+    }
 }
