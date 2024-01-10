@@ -11,6 +11,7 @@ public class Wolfberries extends Plant {
     public Wolfberries(){
         super();
         this.setPrefix("Wolfberries-");
+        this.setColor(color);
     }
 
     @Override

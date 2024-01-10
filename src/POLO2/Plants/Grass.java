@@ -10,5 +10,6 @@ public class Grass extends Plant {
     public Grass(){
         super();
         this.setPrefix("Grass-");
+        this.setColor(color);
     }
 }

@@ -22,6 +22,8 @@ public abstract class Organism {
         return this.color;
     }
 
+    public void setColor(Color color) { this.color = color;}
+
     public boolean isAfterTurn() { return this.isAfterAction; }
 
     public void setAfterAction(boolean b) { this.isAfterAction = b; }

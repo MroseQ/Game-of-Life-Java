@@ -3,6 +3,9 @@ package POLO2;
 import POLO2.Animals.*;
 import POLO2.Plants.*;
 
+import javax.sound.sampled.Line;
+import javax.swing.*;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,18 +13,16 @@ import java.util.List;
 import java.util.Map;
 
 public class Legend {
-    private int length = 0, height = 0;
-
     private final List<Class<?>> classList = new ArrayList<>();
-    private Map<String,Color> legendMap;
+    private List<String> legendList;
 
-    void resize(List<Organism> list) {
+    void resize(List<Organism> list, JComponent component) {
         classList.clear();
         for (Organism obj : list) {
             boolean match = false;
             if (!classList.isEmpty()) {
-                for (var typ : classList) {
-                    if (obj.getClass() == typ) {
+                for (var type : classList) {
+                    if (obj.getClass() == type) {
                         match = true;
                         break;
                     }
@@ -31,22 +32,57 @@ public class Legend {
                 classList.add(obj.getClass());
             }
         }
-        height = classList.size();
-        length = 0;
-        legendMap = namesToLegendMap(classList);
+        repaintLegend(component, classList);
     }
-    int getLength() { return length; }
-    int getHeight() { return height; }
-    public Map<String,Color> getLegendMap() { return legendMap; }
 
-    Map<String,Color> namesToLegendMap(List<Class<?>> list) {
-        Map<String,Color> tempMap = new HashMap<>();
+    void repaintLegend(JComponent component,List<Class<?>> list){
+        int panelWidth = Settings.windowSizeX-Settings.contentWidth;
+        component.removeAll();
+        component.updateUI();
+        component.setLayout(new GridLayout(list.size(),1));
+        int wordLength = 0;
         for (Class<?> objectClass : list) {
+            int panelHeight = Settings.eventHeight/list.size();
             String s = objectClass.getSimpleName();
-            tempMap.put(s,getClassColor(objectClass));
-            if (s.length() > length) length = s.length();
+            if(s.length() > wordLength) wordLength = s.length();
+            Color c = getClassColor(objectClass);
+            int lighterRed = c.getRed(),lighterGreen = c.getGreen(),lighterBlue = c.getBlue();
+            while(lighterGreen != 255 && lighterBlue != 255 && lighterRed != 255){
+                lighterRed++;
+                lighterGreen++;
+                lighterBlue++;
+            }
+            //ODCIENIE BACKGROUNDU DO OGARNIECIA
+            Color lighterColor = new Color(lighterRed,lighterGreen,lighterBlue);
+            JPanel classPanel = new JPanel();
+            component.add(classPanel);
+            classPanel.setLayout(null);
+            classPanel.setBackground(lighterColor);
+            JPanel colorSpace = new JPanel();
+            colorSpace.setBorder(new LineBorder(Color.BLACK,2));
+            colorSpace.setBackground(c);
+            colorSpace.setSize(panelHeight/2,panelHeight/2);
+            colorSpace.setLocation(panelWidth/35,panelHeight/4);
+            classPanel.add(colorSpace);
+            JLabel textSpace = new JLabel(s);
+            textSpace.setForeground(Color.BLACK);
+            textSpace.setFont(textSpace.getFont().deriveFont(panelHeight/2f));
+            textSpace.setSize(panelWidth-colorSpace.getWidth()-(panelWidth*2/25),panelHeight);
+            textSpace.setLocation(panelWidth*2/35+colorSpace.getWidth(),0);
+            textSpace.setVerticalAlignment(SwingConstants.CENTER);
+            textSpace.setHorizontalAlignment(SwingConstants.LEFT);
+            JPanel test = new JPanel();
+            textSpace.add(test);
+            test.setBackground(Color.red);
+            test.setSize(5,panelHeight);
+            test.setLocation((int) (s.length()*textSpace.getFont().getSize()/1.65f),0);
+            while(test.getX()+10>panelWidth-colorSpace.getWidth()-(panelWidth*2/25)){
+                textSpace.setFont(textSpace.getFont().deriveFont((float)textSpace.getFont().getSize()-1));
+                test.setLocation((int) (s.length()*textSpace.getFont().getSize()/1.65f),0);
+            }
+            textSpace.remove(test);
+            classPanel.add(textSpace);
         }
-        return tempMap;
     }
 
     Color getClassColor(Class<?> objectClass){

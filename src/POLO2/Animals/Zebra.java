@@ -14,6 +14,7 @@ public class Zebra extends Animal{
         this.setPrefix("Zebra-");
         this.setStrength(4);
         this.setInitiative(6);
+        this.setColor(color);
     }
 
     @Override

@@ -5,9 +5,6 @@ public class SystemEvent {
         public SystemEvent(String message) {
             this.message = message;
         }
-        void printEvents() {
-            //out << this->wiadomosc << std::endl;
-        }
         String getEvent() { return this.message; }
 
 }

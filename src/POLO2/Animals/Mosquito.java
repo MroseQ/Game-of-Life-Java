@@ -14,6 +14,7 @@ public class Mosquito extends Animal{
         this.setStrength(1);
         this.setInitiative(1);
         this.setPrefix("Mosquito-");
+        this.setColor(color);
     }
 
     @Override

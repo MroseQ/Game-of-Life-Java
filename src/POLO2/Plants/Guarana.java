@@ -5,11 +5,12 @@ import POLO2.*;
 import java.awt.*;
 
 public class Guarana extends Plant {
-    public static final Color color = new Color(255,153,51);
+    public static final Color color = new Color(255,180,100);
 
     public Guarana(){
         super();
         this.setPrefix("Guarana-");
+        this.setColor(color);
     }
 
     @Override

@@ -1,9 +1,13 @@
 package POLO2;
 
+import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
 import static POLO2.Settings.N;
+import static POLO2.Settings.eventHeight;
+import static java.lang.Math.min;
 import static java.util.Collections.swap;
 
 public class World {
@@ -13,15 +17,21 @@ public class World {
     List<SystemEvent> eventList = new ArrayList<>();
     List<Organism> worldOrganisms = new ArrayList<>();
 
+    private JComponent contentComponent,eventComponent,legendComponent;
+
     World(){
         this.size = N;
         this.turn = 0;
         this.legend = new Legend();
     }
-    void performTurn(){
+    void performTurns(){
         turn++;
         sortOrganisms();
-        for (Organism var : worldOrganisms) {
+        for (int i=0;i<worldOrganisms.size();i++) {
+            Organism var = worldOrganisms.get(i);
+            Position position = var.getPosition();
+            JComponent component = (JComponent) contentComponent.getComponent((N+1) *position.getX() + position.getY());
+            component.setBackground(new Color(238,238,238));
             if (var.isAfterTurn()) {
                 this.pushEvent(new SystemEvent("Object " + var.getID() + " didn't have their action."));
                 var.setAfterAction(false);
@@ -31,17 +41,52 @@ public class World {
             } else {
                 var.action();
             }
+            System.out.println(var.getID() + "  " + var.getPosition().print());
         }
         this.removeFromWorld();
+        paintTheWorld();
     }
     void paintTheWorld(){
+        for(Organism var : worldOrganisms) {
+            Position position = var.getPosition();
+            JComponent component = (JComponent) contentComponent.getComponent((N+1) *position.getX() + position.getY());
+            component.setBackground(var.paint());
+        }
+        printEvents();
+        this.legend.resize(worldOrganisms,legendComponent);
+    }
+
+    void printEvents(){
+        eventComponent.removeAll();
+        eventComponent.updateUI();
+        eventComponent.setLayout(new GridLayout(eventList.size(),1));
+        for(int i=1;i<=eventList.size();i++){
+            JLabel label = new JLabel(i+ " => "  + eventList.get(i-1).getEvent());
+            label.setFont(label.getFont().deriveFont((float)eventHeight/(10+eventList.size())));
+            eventComponent.add(label);
+            System.out.println(eventList.get(i-1).getEvent());
+        }
+        eventList.clear();
+    }
+
+    void saveWorld(){
 
     }
-    //void fetch();
-    //void saveWorld();
-    //World loadWorld();
 
-    //void operator=(Swiat* other);
+    void setContentComponent(JComponent contentComponent){
+        this.contentComponent = contentComponent;
+    }
+
+    void setEventComponent(JComponent eventComponent){
+        this.eventComponent = eventComponent;
+    }
+
+    void setLegendComponent(JComponent legendComponent){
+        this.legendComponent = legendComponent;
+    }
+    World loadWorld(){
+        return this;
+    }
 
     public Organism checkCollisionOnPosition(Position p, Organism attacker){
         int count = 0;

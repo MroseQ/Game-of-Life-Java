@@ -97,6 +97,7 @@ public class OrganismBuilder{
         else {
             object.setPosition(this.position);
         }
+        world.eventList.add(new SystemEvent("Spawned - " + object.getID()));
         //return object;
     }
 }

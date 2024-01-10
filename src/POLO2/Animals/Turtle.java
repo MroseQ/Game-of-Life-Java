@@ -13,6 +13,7 @@ public class Turtle extends Animal {
         this.setPrefix("Turtle-");
         this.setStrength(2);
         this.setInitiative(1);
+        this.setColor(color);
     }
 
     @Override

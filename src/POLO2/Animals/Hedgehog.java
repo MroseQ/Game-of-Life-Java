@@ -12,6 +12,7 @@ public class Hedgehog extends Animal {
         this.setStrength(2);
         this.setInitiative(3);
         this.setPrefix("Hedgehog-");
+        this.setColor(color);
     }
 
     @Override

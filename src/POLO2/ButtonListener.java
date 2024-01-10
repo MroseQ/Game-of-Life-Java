@@ -6,14 +6,17 @@ import java.awt.event.ActionListener;
 
 public class ButtonListener implements ActionListener {
     private final JComponent field;
-    public ButtonListener(JComponent field){
+    private World world;
+    public ButtonListener(JComponent field, World world){
         this.field = field;
+        this.world = world;
     }
     @Override
     public void actionPerformed(ActionEvent e){
         switch(e.getActionCommand()){
             case "Next Turn":
-                System.out.print("NextTurn");
+                System.out.println("NextTurn");
+                world.performTurns();
                 break;
             case "Save World":
                 field.setVisible(false);
