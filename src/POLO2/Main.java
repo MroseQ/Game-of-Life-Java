@@ -15,7 +15,7 @@ public class Main {
         new OrganismBuilder(currentWorld).build("Zebra");
         new OrganismBuilder(currentWorld).build("Wolfberries");
         new OrganismBuilder(currentWorld).build("Mosquito");
-        //new OrganismBuilder(currentWorld).setPosition(new Position(5,5)).build("Grass");
+        new OrganismBuilder(currentWorld).build("Grass");
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {

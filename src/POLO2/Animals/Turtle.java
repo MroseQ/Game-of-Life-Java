@@ -6,7 +6,7 @@ import java.awt.*;
 import java.util.Random;
 
 public class Turtle extends Animal {
-    public static final Color color = new Color(113,255,113);
+    public static final Color color = new Color(100,200,0);
 
     public Turtle(){
         super();

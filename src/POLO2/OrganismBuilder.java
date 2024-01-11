@@ -33,6 +33,11 @@ public class OrganismBuilder{
         return this;
     }
 
+    public OrganismBuilder setPosition(int x, int y){
+        this.position = new Position(x,y);
+        return this;
+    }
+
     public Organism build(String name)
     {
         Organism newObject = null;

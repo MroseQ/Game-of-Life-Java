@@ -1,8 +1,11 @@
 package POLO2;
 
+import javax.swing.*;
+import java.awt.*;
 import java.util.List;
 import java.util.Random;
 
+import static POLO2.Settings.N;
 import static POLO2.Settings.spawnRate;
 
 public abstract class Plant extends Organism{
@@ -21,7 +24,8 @@ public abstract class Plant extends Organism{
     }
 
     protected void collision(Organism taker){
-        this.getWorld().pushEvent(new SystemEvent(taker.getID() + "has eaten " + this.getID()));
+        this.getWorld().pushEvent(new SystemEvent(taker.getID() + " has eaten " + this.getID()));
+        this.getWorld().repaintCell(this.getPosition());
         this.getWorld().pushToRemove(this);
     }
 
@@ -51,7 +55,6 @@ public abstract class Plant extends Organism{
                 this.getWorld().pushEvent(new SystemEvent("Plant " + this.getID() +
                         " has spread onto -> " + newPosition.print()));
             }
-
             else {
                 this.getWorld().pushEvent(new SystemEvent("Species " + this.getClass().getSimpleName() + "' didn't have a place to reproduce."));
             }

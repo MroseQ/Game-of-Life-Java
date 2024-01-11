@@ -141,19 +141,19 @@ public class Window {
         label.setBorder(new LineBorder(Color.black,1));
         label.setHorizontalAlignment(SwingConstants.CENTER);
         label.setFont(label.getFont().deriveFont((float)contentWidth/(2*(N+1))));
-        if(i == 0 && j == 0){
-            label.setText("Y" + '|' + "X");
-        }else if (i == 0){
-            if(j < 10){
-                label.setText("0"+j);
-            }else{
-                label.setText(String.valueOf(j));
-            }
-        }else{
-            if(i < 10){
-                label.setText("0"+i);
-            }else{
-                label.setText(String.valueOf(i));
+        if (i != 0 || j != 0) {
+            if (i == 0){
+                if(j < 10){
+                    label.setText("0"+j);
+                }else{
+                    label.setText(String.valueOf(j));
+                }
+            }else if(j == 0){
+                if(i < 10){
+                    label.setText("0"+i);
+                }else{
+                    label.setText(String.valueOf(i));
+                }
             }
         }
         motherPanel.add(label);

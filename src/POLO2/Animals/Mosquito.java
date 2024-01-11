@@ -22,8 +22,22 @@ public class Mosquito extends Animal{
         Random random = new Random();
         if(random.nextInt(2) == 0) super.death(killer);
         else{
-            this.setPosition(this.getPreviousPosition());
-            this.getWorld().pushEvent(new SystemEvent(this.getID() + " has survived a battle with " + killer.getID() + " and has landed on " + this.getPosition().print()));
+            if(this.getPreviousPosition().getX() != -1){
+                this.setPosition(this.getPreviousPosition());
+            }else{
+                try{
+                    for(Position p : this.getPosition().getNeighbours(this.getPosition())){
+                        if(!this.getWorld().isObjectOnPosition(p)){
+                            this.setPosition(p);
+                            this.getWorld().pushEvent(new SystemEvent(this.getID() + " has survived a battle with " + killer.getID() + " and has landed on " + this.getPosition().print()));
+                            break;
+                        }
+                    }
+                    super.death(killer);
+                }catch (CustomException e){
+                    System.out.println(e.getMessage());
+                }
+            }
         }
     }
 

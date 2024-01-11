@@ -15,7 +15,7 @@ public abstract class Organism {
     abstract void collision(Organism other);
 
     public void createChild(World world,Position position){
-        new OrganismBuilder(world).setPosition(position).build(this.getClass().getSimpleName());
+        new OrganismBuilder(world).setPosition(position).setAfterAction(true).build(this.getClass().getSimpleName());
     }
 
     public Color paint(){

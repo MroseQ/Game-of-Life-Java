@@ -5,8 +5,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static POLO2.Settings.N;
-import static POLO2.Settings.eventHeight;
+import static POLO2.Settings.*;
 import static java.lang.Math.min;
 import static java.util.Collections.swap;
 
@@ -29,28 +28,41 @@ public class World {
         sortOrganisms();
         for (int i=0;i<worldOrganisms.size();i++) {
             Organism var = worldOrganisms.get(i);
-            Position position = var.getPosition();
-            JComponent component = (JComponent) contentComponent.getComponent((N+1) *position.getX() + position.getY());
-            component.setBackground(new Color(238,238,238));
-            if (var.isAfterTurn()) {
-                this.pushEvent(new SystemEvent("Object " + var.getID() + " didn't have their action."));
-                var.setAfterAction(false);
-            } else if (var.getStun() != 0) {
-                this.pushEvent(new SystemEvent("Object " + var.getID() + " is stunned."));
-                var.setStun(var.getStun() - 1);
-            } else {
-                var.action();
+                System.out.println(var.getID() + "  " + var.getPosition().print() + "  " + var.getIsDead());
+            if(!var.getIsDead()){
+                Position position = var.getPosition();
+                JComponent component = (JComponent) contentComponent.getComponent((N + 1) * position.getY() + position.getX());
+                component.setBackground(new Color(238, 238, 238));
+                if (var.isAfterTurn()) {
+                    this.pushEvent(new SystemEvent(var.getID() + " didn't have their action."));
+                    var.setAfterAction(false);
+                } else if (var.getStun() != 0) {
+                    this.pushEvent(new SystemEvent(var.getID() + " is stunned."));
+                    var.setStun(var.getStun() - 1);
+                } else {
+                    var.action();
+                }
             }
-            System.out.println(var.getID() + "  " + var.getPosition().print());
         }
         this.removeFromWorld();
+        for (Organism worldOrganism : worldOrganisms) {
+            worldOrganism.setAfterAction(false);
+        }
         paintTheWorld();
     }
     void paintTheWorld(){
+        JLabel turnLabel = (JLabel) contentComponent.getComponent(0);
+        turnLabel.setText("T:"+turn);
+        if(turnLabel.getText().length() > 3){
+            turnLabel.setFont(turnLabel.getFont().deriveFont((float)(contentWidth/(2*(N+1))-(turnLabel.getText().length()*4))));
+        }
         for(Organism var : worldOrganisms) {
-            Position position = var.getPosition();
-            JComponent component = (JComponent) contentComponent.getComponent((N+1) *position.getX() + position.getY());
-            component.setBackground(var.paint());
+            System.out.println("PAINTING: " + var.getID() + "  " + var.getPosition().print());
+            if(!var.getIsDead()){
+                Position position = var.getPosition();
+                JComponent component = (JComponent) contentComponent.getComponent((N+1) *position.getY() + position.getX());
+                component.setBackground(var.paint());
+            }
         }
         printEvents();
         this.legend.resize(worldOrganisms,legendComponent);
@@ -64,7 +76,6 @@ public class World {
             JLabel label = new JLabel(i+ " => "  + eventList.get(i-1).getEvent());
             label.setFont(label.getFont().deriveFont((float)eventHeight/(10+eventList.size())));
             eventComponent.add(label);
-            System.out.println(eventList.get(i-1).getEvent());
         }
         eventList.clear();
     }
@@ -89,25 +100,18 @@ public class World {
     }
 
     public Organism checkCollisionOnPosition(Position p, Organism attacker){
-        int count = 0;
-        List<Organism> objectsOnPosition = new ArrayList<>();
+        Organism objectOnPosition = null;
         for (Organism var : worldOrganisms) {
-            if (p == var.getPosition()) {
-                count++;
-                objectsOnPosition.add(var);
+            if (p.equals(var.getPosition()) && !var.equals(attacker)) {
+                objectOnPosition = var;
+                break;
             }
         }
-        if (count <= 1) return null;
-        else {
-            for (Organism var : objectsOnPosition) {
-                if (attacker != var) return var;
-            }
-        }
-        return null;
+        return objectOnPosition;
     }
     public boolean isObjectOnPosition(Position p){
         for (Organism var : worldOrganisms) {
-            if (p == var.getPosition()) {
+            if (p.equals(var.getPosition())) {
                 return true;
             }
         }
@@ -124,7 +128,7 @@ public class World {
     }
     public Organism returnObjectFromPosition(Position p){
         for (Organism var : worldOrganisms) {
-            if (p == var.getPosition()) {
+            if (p.equals(var.getPosition())) {
                 return var;
             }
         }
@@ -154,7 +158,6 @@ public class World {
         }
     }
     public void pushToRemove(Organism o){
-        this.pushEvent(new SystemEvent("Object " + o.getID() + " dies. [*]"));
         o.setPosition(-1,-1);
         o.setIsDead(true);
         o.setAfterAction(true);
@@ -175,6 +178,12 @@ public class World {
         worldOrganisms.removeIf(Organism::getIsDead);
 
     }
+
+    public void repaintCell(Position position){
+        JComponent component = (JComponent) contentComponent.getComponent((N + 1) * position.getY() + position.getX());
+        component.setBackground(new Color(238, 238, 238));
+    }
+
     void sortOrganisms(){
         for (int i = 0; i < worldOrganisms.size() - 1; i++) {
             for (int j = 0; j < worldOrganisms.size() - i - 1; j++) {

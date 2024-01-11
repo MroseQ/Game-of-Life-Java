@@ -46,14 +46,10 @@ public class Legend {
             String s = objectClass.getSimpleName();
             if(s.length() > wordLength) wordLength = s.length();
             Color c = getClassColor(objectClass);
-            int lighterRed = c.getRed(),lighterGreen = c.getGreen(),lighterBlue = c.getBlue();
-            while(lighterGreen != 255 && lighterBlue != 255 && lighterRed != 255){
-                lighterRed++;
-                lighterGreen++;
-                lighterBlue++;
-            }
-            //ODCIENIE BACKGROUNDU DO OGARNIECIA
-            Color lighterColor = new Color(lighterRed,lighterGreen,lighterBlue);
+            float[] hsv = Color.RGBtoHSB(c.getRed(),c.getGreen(),c.getBlue(),null);
+            hsv[1] = Math.max(hsv[1]-0.5f,0);
+            hsv[2] = Math.min(hsv[2]+0.5f,1);
+            Color lighterColor = Color.getHSBColor(hsv[0],hsv[1],hsv[2]);
             JPanel classPanel = new JPanel();
             component.add(classPanel);
             classPanel.setLayout(null);

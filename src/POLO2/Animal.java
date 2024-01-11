@@ -26,14 +26,12 @@ public abstract class Animal extends Organism{
 
         } while (randX == 0 && randY == 0);
         this.setPreviousPosition(this.getPosition());
+        //this.setPosition(this.getPosition().getX()-1,this.getPosition().getY()-1);
         this.addPosition(randX,randY);
         Organism other = this.getWorld().checkCollisionOnPosition(this.getPosition(),this);
+        this.getWorld().pushEvent(new SystemEvent("Movement of object " + this.getID() + " onto -> " + this.getPosition().print()));
         if (other != null) {
             this.collision(other);
-        }
-	    else {
-            this.getWorld().pushEvent(new SystemEvent("Movement of object " + this.getID() +
-                    " onto -> " + this.getPosition().print()));
         }
     }
 
@@ -74,18 +72,27 @@ public abstract class Animal extends Organism{
     }
     void reproduce(Position alfa, Position beta) {
         try {
-            List<Position> possiblePlacesList = alfa.getNeighbours(beta);
+            Random random = new Random();
+            List<Position> possiblePositions = alfa.getNeighbours(beta);
+            int startIndex = random.nextInt(possiblePositions.size());
+            int index = startIndex;
             Position positionOfNewObject = null;
-            for (Position p : possiblePlacesList) {
-                if (!this.getWorld().isObjectOnPosition(p)){
-                    positionOfNewObject = p;
+            do {
+                if (index+1 > possiblePositions.size()-1) {
+                    index = 0;
+                }
+                else {
+                    index++;
+                }
+                if (!this.getWorld().isObjectOnPosition(possiblePositions.get(index))) {
+                    positionOfNewObject = possiblePositions.get(index);
                     break;
                 }
-            }
+            } while (index!=startIndex);
             if (positionOfNewObject != null) {
                 this.getWorld().pushEvent(new SystemEvent("Species " + this.getClass().getSimpleName()
                         + " gave birth to a child on -> " + positionOfNewObject.print() ));
-                //IMPLEMENTACJA DODAWANIA DZIECKA
+                this.createChild(this.getWorld(),positionOfNewObject);
             }
             else {
                 this.getWorld().pushEvent(new SystemEvent("Species " + this.getClass().getSimpleName() + " was shy so there was no child."));

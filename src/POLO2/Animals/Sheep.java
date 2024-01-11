@@ -5,7 +5,7 @@ import POLO2.*;
 import java.awt.*;
 
 public class Sheep extends Animal {
-    public static final Color color = new Color(200,170,200);
+    public static final Color color = new Color(200,130,200);
 
     public Sheep(){
         super();

@@ -1,10 +1,13 @@
 package POLO2.Animals;
 
 import POLO2.*;
-import POLO2.Animals.Wolf;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+
+import static POLO2.Settings.N;
 
 public class Zebra extends Animal{
     public static final Color color = new Color(150,150,150);
@@ -47,10 +50,8 @@ public class Zebra extends Animal{
                 super.action();
             }
             else {
-                int distX = this.getPosition().getX() - wolfPosition.getX();
-                int distY = this.getPosition().getY() - wolfPosition.getY();
                 this.setPreviousPosition(this.getPosition());
-                this.addPosition(distX, distY);
+                this.setPosition(escapingTheWolf(wolfPosition));
                 Organism other = this.getWorld().checkCollisionOnPosition(this.getPosition(),this);
                 if (other != null) {
                     this.collision(other);
@@ -63,5 +64,67 @@ public class Zebra extends Animal{
         } catch (CustomException e) {
             throw new RuntimeException(e);
         }
+
+    }
+    Position escapingTheWolf(Position wolfPosition){
+        int zebraX = this.getPosition().getX();
+        int zebraY = this.getPosition().getY();
+        if(zebraX != 1 && zebraX != N && zebraY != 1 && zebraY != N){
+            int distX = zebraX - wolfPosition.getX();
+            int distY = zebraY - wolfPosition.getY();
+            return new Position(zebraX+distX,zebraY+distY);
+        }
+        List<Position> possiblePositions = new ArrayList<>();
+        try {
+            boolean isXBorder = (zebraX == 1 || zebraX == N);
+            boolean isYBorder = (zebraY == 1 || zebraY == N);
+            if (isXBorder && isYBorder) {
+                possiblePositions = this.getPosition().getNeighbours(wolfPosition);
+            }else{
+                if(isXBorder){
+                    if(zebraY == wolfPosition.getY()){
+                        possiblePositions = this.getPosition().getNeighbours(wolfPosition);
+                    }
+                    else if(zebraY > wolfPosition.getY()){
+                        possiblePositions.add(new Position(zebraX,zebraY+1));
+                        if(zebraX == 1){
+                            possiblePositions.add(new Position(zebraX+1,zebraY+1));
+                        }else{
+                            possiblePositions.add(new Position(zebraX-1,zebraY+1));
+                        }
+                    }else{
+                        possiblePositions.add(new Position(zebraX,zebraY-1));
+                        if(zebraX == 1){
+                            possiblePositions.add(new Position(zebraX+1,zebraY-1));
+                        }else{
+                            possiblePositions.add(new Position(zebraX-1,zebraY-1));
+                        }
+                    }
+                }else{
+                    if(zebraX == wolfPosition.getX()){
+                        possiblePositions = this.getPosition().getNeighbours(wolfPosition);
+                    }
+                    else if(zebraX > wolfPosition.getX()){
+                        possiblePositions.add(new Position(zebraX+1,zebraY));
+                        if(zebraY == 1){
+                            possiblePositions.add(new Position(zebraX+1,zebraY+1));
+                        }else{
+                            possiblePositions.add(new Position(zebraX+1,zebraY-1));
+                        }
+                    }else{
+                        possiblePositions.add(new Position(zebraX-1,zebraY));
+                        if(zebraY == 1){
+                            possiblePositions.add(new Position(zebraX-1,zebraY+1));
+                        }else{
+                            possiblePositions.add(new Position(zebraX-1,zebraY-1));
+                        }
+                    }
+                }
+            }
+        }catch(CustomException e){
+            System.out.println(e.getMessage());
+        }
+        Random random = new Random();
+        return possiblePositions.get(random.nextInt(possiblePositions.size()));
     }
 }
