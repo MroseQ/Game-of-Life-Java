@@ -26,7 +26,7 @@ public class Mosquito extends Animal{
                 this.setPosition(this.getPreviousPosition());
             }else{
                 try{
-                    for(Position p : this.getPosition().getNeighbours(this.getPosition())){
+                    for(Position p : this.getPosition().getNeighbours(this.getPosition(),this.getWorld().getSize())){
                         if(!this.getWorld().isObjectOnPosition(p)){
                             this.setPosition(p);
                             this.getWorld().pushEvent(new SystemEvent(this.getID() + " has survived a battle with " + killer.getID() + " and has landed on " + this.getPosition().print()));
@@ -44,7 +44,7 @@ public class Mosquito extends Animal{
     @Override
     public void action(){
         try {
-            List<Position> nextToPlaces = this.getPosition().getNeighbours(this.getPosition());
+            List<Position> nextToPlaces = this.getPosition().getNeighbours(this.getPosition(),this.getWorld().getSize());
             int counter = 0;
             for (Position p : nextToPlaces) {
                 if (this.getWorld().isObjectOnPosition(p)

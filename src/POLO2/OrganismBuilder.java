@@ -69,14 +69,14 @@ public class OrganismBuilder{
             newObject = new Wolfberries();
         }
         if(newObject != null){
-            /*newObject =*/ fillOutWithData(newObject);
+            fillOutWithData(newObject);
         }
         return newObject;
     }
 
-    private void /*Organism*/ fillOutWithData(Organism object){
-        if (object.getID() == null) {
-            object.setID(object.prefix + Organism.getNextID());
+    private void fillOutWithData(Organism object){
+        if (this.id == null) {
+            object.setID(object.prefix + Organism.addNextID());
         }
         else {
             object.setID(this.id);
@@ -103,6 +103,5 @@ public class OrganismBuilder{
             object.setPosition(this.position);
         }
         world.eventList.add(new SystemEvent("Spawned - " + object.getID()));
-        //return object;
     }
 }

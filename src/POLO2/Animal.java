@@ -17,11 +17,11 @@ public abstract class Animal extends Organism{
         int randX, randY;
         do {
             if (this.getPosition().getX() == 1) randX = random.nextInt(2);
-            else if (this.getPosition().getX() == N) randX = random.nextInt(2) - 1;
+            else if (this.getPosition().getX() == this.getWorld().getSize()) randX = random.nextInt(2) - 1;
             else randX = random.nextInt(3) - 1;
 
             if (this.getPosition().getY() == 1) randY = random.nextInt(2);
-		    else if (this.getPosition().getY() == N) randY = random.nextInt(2) - 1;
+		    else if (this.getPosition().getY() == this.getWorld().getSize()) randY = random.nextInt(2) - 1;
 		    else randY = random.nextInt(3) - 1;
 
         } while (randX == 0 && randY == 0);
@@ -73,7 +73,7 @@ public abstract class Animal extends Organism{
     void reproduce(Position alfa, Position beta) {
         try {
             Random random = new Random();
-            List<Position> possiblePositions = alfa.getNeighbours(beta);
+            List<Position> possiblePositions = alfa.getNeighbours(beta,this.getWorld().getSize());
             int startIndex = random.nextInt(possiblePositions.size());
             int index = startIndex;
             Position positionOfNewObject = null;

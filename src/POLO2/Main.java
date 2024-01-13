@@ -2,8 +2,6 @@ package POLO2;
 
 import javax.swing.*;
 
-import POLO2.OrganismBuilder;
-
 public class Main {
     public static void main(String[] args) {
         World currentWorld = new World();

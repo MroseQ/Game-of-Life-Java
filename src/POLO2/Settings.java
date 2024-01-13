@@ -7,5 +7,5 @@ public class Settings {
     static final int contentHeight = 900;
     static final int eventHeight = 350;
     static final int spawnRate = 5;
-    public static final int N = 4;
+    public static final int N = 10;
 }

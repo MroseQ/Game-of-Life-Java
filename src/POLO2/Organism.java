@@ -34,7 +34,8 @@ public abstract class Organism {
     public int getAliveSince() { return aliveSince; }
     public void setAliveSince(int turn) { this.aliveSince = turn; }
 
-    static int getNextID() { return Organism.nextID++; }
+    static int addNextID() { return Organism.nextID++; }
+    static int getNextID(){ return Organism.nextID;}
     static void setNextID(int value) { Organism.nextID = value; }
 
     public String getID() { return id; }

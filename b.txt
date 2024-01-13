@@ -1,0 +1,6 @@
+4;7;10
+Zebra;Zebra-5;(2,3);0;4;6;0;false
+Wolf;Wolf-0;(1,1);0;9;5;0;false
+Turtle;Turtle-4;(4,4);0;2;1;0;false
+Guarana;Guarana-1;(1,2);0;0;0;0;false
+Guarana;Guarana-9;(1,3);4;0;0;0;false

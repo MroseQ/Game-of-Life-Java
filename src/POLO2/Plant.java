@@ -1,11 +1,8 @@
 package POLO2;
 
-import javax.swing.*;
-import java.awt.*;
 import java.util.List;
 import java.util.Random;
 
-import static POLO2.Settings.N;
 import static POLO2.Settings.spawnRate;
 
 public abstract class Plant extends Organism{
@@ -18,7 +15,8 @@ public abstract class Plant extends Organism{
 
     void action(){
         Random random = new Random();
-        if (random.nextInt(100) < spawnRate) {
+        int randomInt = random.nextInt(100);
+        if (randomInt <= spawnRate) {
             this.reproduce(this.getPosition());
         }
     }
@@ -32,7 +30,7 @@ public abstract class Plant extends Organism{
 
     void reproduce(Position position){
         try {
-            List<Position> possiblePositions = position.getNeighbours(position);
+            List<Position> possiblePositions = position.getNeighbours(position,this.getWorld().getSize());
             Random random = new Random();
             int startIndex = random.nextInt(possiblePositions.size());
             int index = startIndex;
@@ -56,7 +54,7 @@ public abstract class Plant extends Organism{
                         " has spread onto -> " + newPosition.print()));
             }
             else {
-                this.getWorld().pushEvent(new SystemEvent("Species " + this.getClass().getSimpleName() + "' didn't have a place to reproduce."));
+                this.getWorld().pushEvent(new SystemEvent("Species " + this.getClass().getSimpleName() + " didn't have a place to reproduce."));
             }
         } catch (CustomException e) {
             System.out.println("Exception: " + e.getMessage());

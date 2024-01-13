@@ -1,1 +1,5 @@
-if number of event is low, then the longer events will not be all visible
+if number of event is low, then the longer events will not be visible
+loading different sized world will occur in the content having size of the previous world
+the higher the size, then the font of turn label is lower for digits > 1
+
+code cleanup

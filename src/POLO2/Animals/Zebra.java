@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static POLO2.Settings.N;
-
 public class Zebra extends Animal{
     public static final Color color = new Color(150,150,150);
 
@@ -36,7 +34,7 @@ public class Zebra extends Animal{
     @Override
     protected void action(){
         try {
-            List<Position> nextToPositions = this.getPosition().getNeighbours(this.getPosition());
+            List<Position> nextToPositions = this.getPosition().getNeighbours(this.getPosition(),this.getWorld().getSize());
             Position wolfPosition = null;
             for (Position p : nextToPositions) {
                 if (this.getWorld().isObjectOnPosition(p)
@@ -69,21 +67,21 @@ public class Zebra extends Animal{
     Position escapingTheWolf(Position wolfPosition){
         int zebraX = this.getPosition().getX();
         int zebraY = this.getPosition().getY();
-        if(zebraX != 1 && zebraX != N && zebraY != 1 && zebraY != N){
+        if(zebraX != 1 && zebraX != this.getWorld().getSize() && zebraY != 1 && zebraY != this.getWorld().getSize()){
             int distX = zebraX - wolfPosition.getX();
             int distY = zebraY - wolfPosition.getY();
             return new Position(zebraX+distX,zebraY+distY);
         }
         List<Position> possiblePositions = new ArrayList<>();
         try {
-            boolean isXBorder = (zebraX == 1 || zebraX == N);
-            boolean isYBorder = (zebraY == 1 || zebraY == N);
+            boolean isXBorder = (zebraX == 1 || zebraX == this.getWorld().getSize());
+            boolean isYBorder = (zebraY == 1 || zebraY == this.getWorld().getSize());
             if (isXBorder && isYBorder) {
-                possiblePositions = this.getPosition().getNeighbours(wolfPosition);
+                possiblePositions = this.getPosition().getNeighbours(wolfPosition,this.getWorld().getSize());
             }else{
                 if(isXBorder){
                     if(zebraY == wolfPosition.getY()){
-                        possiblePositions = this.getPosition().getNeighbours(wolfPosition);
+                        possiblePositions = this.getPosition().getNeighbours(wolfPosition,this.getWorld().getSize());
                     }
                     else if(zebraY > wolfPosition.getY()){
                         possiblePositions.add(new Position(zebraX,zebraY+1));
@@ -102,7 +100,7 @@ public class Zebra extends Animal{
                     }
                 }else{
                     if(zebraX == wolfPosition.getX()){
-                        possiblePositions = this.getPosition().getNeighbours(wolfPosition);
+                        possiblePositions = this.getPosition().getNeighbours(wolfPosition,this.getWorld().getSize());
                     }
                     else if(zebraX > wolfPosition.getX()){
                         possiblePositions.add(new Position(zebraX+1,zebraY));

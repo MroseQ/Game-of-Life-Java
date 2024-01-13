@@ -2,6 +2,10 @@ package POLO2;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,16 +14,17 @@ import static java.lang.Math.min;
 import static java.util.Collections.swap;
 
 public class World {
-    final int size;
+    int size;
     int turn;
-    final Legend legend;
+    Legend legend;
     List<SystemEvent> eventList = new ArrayList<>();
     List<Organism> worldOrganisms = new ArrayList<>();
 
+    private Window window;
     private JComponent contentComponent,eventComponent,legendComponent;
 
     World(){
-        this.size = N;
+        this.size = Settings.N;
         this.turn = 0;
         this.legend = new Legend();
     }
@@ -31,10 +36,9 @@ public class World {
                 System.out.println(var.getID() + "  " + var.getPosition().print() + "  " + var.getIsDead());
             if(!var.getIsDead()){
                 Position position = var.getPosition();
-                JComponent component = (JComponent) contentComponent.getComponent((N + 1) * position.getY() + position.getX());
+                JComponent component = (JComponent) contentComponent.getComponent((this.size + 1) * position.getY() + position.getX());
                 component.setBackground(new Color(238, 238, 238));
                 if (var.isAfterTurn()) {
-                    this.pushEvent(new SystemEvent(var.getID() + " didn't have their action."));
                     var.setAfterAction(false);
                 } else if (var.getStun() != 0) {
                     this.pushEvent(new SystemEvent(var.getID() + " is stunned."));
@@ -50,17 +54,31 @@ public class World {
         }
         paintTheWorld();
     }
+
+    void copy(World world){
+        this.worldOrganisms = world.worldOrganisms;
+        world.contentComponent = this.contentComponent;
+        world.eventComponent = this.eventComponent;
+        world.legendComponent = this.legendComponent;
+        this.eventList = world.eventList;
+        this.size = world.size;
+        this.turn = world.turn;
+        this.legend = new Legend();
+        world.window = this.window;
+        window.createContent((JPanel)contentComponent,world.size);
+    }
+
     void paintTheWorld(){
         JLabel turnLabel = (JLabel) contentComponent.getComponent(0);
         turnLabel.setText("T:"+turn);
         if(turnLabel.getText().length() > 3){
-            turnLabel.setFont(turnLabel.getFont().deriveFont((float)(contentWidth/(2*(N+1))-(turnLabel.getText().length()*4))));
+            turnLabel.setFont(turnLabel.getFont().deriveFont((float)(contentWidth/(2*(this.size+1))-(turnLabel.getText().length()*4))));
         }
         for(Organism var : worldOrganisms) {
-            System.out.println("PAINTING: " + var.getID() + "  " + var.getPosition().print());
             if(!var.getIsDead()){
                 Position position = var.getPosition();
-                JComponent component = (JComponent) contentComponent.getComponent((N+1) *position.getY() + position.getX());
+                System.out.println("Breaker: " + var.getPosition().print());
+                JComponent component = (JComponent) contentComponent.getComponent((this.size+1) *position.getY() + position.getX());
                 component.setBackground(var.paint());
             }
         }
@@ -80,8 +98,26 @@ public class World {
         eventList.clear();
     }
 
-    void saveWorld(){
+    void saveWorld(Path filePath) throws CustomException{
+        String header = size + ";" + turn + ";" + Organism.getNextID();
+        try{
+            if(!Files.exists(filePath)){
+                Files.write(filePath,header.getBytes(), StandardOpenOption.CREATE_NEW);
+            }else{
+                Files.write(filePath,header.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
+            }
+            for(Organism o : worldOrganisms){
+                Files.write(filePath,createStringOfOrganism(o).getBytes(), StandardOpenOption.APPEND);
+            }
+        }catch(IOException e){
+            throw new CustomException(e.toString());
+        }
+    }
 
+    String createStringOfOrganism(Organism o){
+        return  "\n" + o.getClass().getSimpleName() + ";" + o.getID() + ";" + o.getPosition().print() +
+                ";" + o.getAliveSince() + ";" + o.getStrength() + ";" + o.getInitiative() + ";" +
+                o.getStun() + ";" + o.isAfterTurn();
     }
 
     void setContentComponent(JComponent contentComponent){
@@ -95,8 +131,48 @@ public class World {
     void setLegendComponent(JComponent legendComponent){
         this.legendComponent = legendComponent;
     }
-    World loadWorld(){
-        return this;
+
+    void setTurn(int turn){
+        this.turn = turn;
+    }
+
+    void setSize(int size){
+        this.size = size;
+    }
+    World loadWorld(Path filePath) throws CustomException{
+        List<String> stringsFromFile;
+        try{
+            stringsFromFile = Files.readAllLines(filePath);
+        }catch(IOException e){
+            throw new CustomException(e.toString());
+        }
+        World newWorld = new World();
+
+        String header = stringsFromFile.getFirst();
+        String[] headerFragments =  header.split(";");
+
+        newWorld.setSize(Integer.parseInt(headerFragments[0]));
+        newWorld.setTurn(Integer.parseInt(headerFragments[1]));
+        Organism.setNextID(Integer.parseInt(headerFragments[2]));
+
+        stringsFromFile.removeFirst();
+
+        while(!stringsFromFile.isEmpty()){
+            String line = stringsFromFile.getFirst();
+            String[] lineFragments = line.split(";");
+            Organism newOrganism = new OrganismBuilder(newWorld)
+                    .setID(lineFragments[1])
+                    .setPosition(Position.stringDecoder(lineFragments[2]))
+                    .setAfterAction(Boolean.parseBoolean(lineFragments[7]))
+                    .build(lineFragments[0]);
+            newOrganism.setAliveSince(Integer.parseInt(lineFragments[3]));
+            newOrganism.setStrength(Integer.parseInt(lineFragments[4]));
+            newOrganism.setInitiative(Integer.parseInt(lineFragments[5]));
+            newOrganism.setStun(Integer.parseInt(lineFragments[6]));
+            stringsFromFile.removeFirst();
+        }
+
+        return newWorld;
     }
 
     public Organism checkCollisionOnPosition(Position p, Organism attacker){
@@ -143,6 +219,10 @@ public class World {
         return null;
     }
 
+    public int getSize() {return size;}
+
+    public void setWindow(Window window) { this.window = window;}
+
     public int getTurn() { return turn; }
 
     public void pushEvent(SystemEvent e){
@@ -167,20 +247,12 @@ public class World {
     }
 
     void removeFromWorld(){
-        /*
-        Iterator<Organism> iterator = worldOrganisms.iterator();
-        while (iterator.hasNext()) {
-            Organism var = iterator.next();
-            if (var.getIsDead()) {
-                iterator.remove();
-            }
-        }*/
         worldOrganisms.removeIf(Organism::getIsDead);
-
     }
 
     public void repaintCell(Position position){
-        JComponent component = (JComponent) contentComponent.getComponent((N + 1) * position.getY() + position.getX());
+        System.out.println("Breaker: " +((this.size + 1) * position.getY() + position.getX()));
+        JComponent component = (JComponent) contentComponent.getComponent((this.size + 1) * position.getY() + position.getX());
         component.setBackground(new Color(238, 238, 238));
     }
 
