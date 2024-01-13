@@ -60,7 +60,10 @@ public class World {
         world.contentComponent = this.contentComponent;
         world.eventComponent = this.eventComponent;
         world.legendComponent = this.legendComponent;
-        this.eventList = world.eventList;
+        this.eventList.clear();
+        for(SystemEvent e : world.eventList){
+            pushEvent(e);
+        }
         this.size = world.size;
         this.turn = world.turn;
         this.legend = new Legend();
@@ -71,9 +74,8 @@ public class World {
     void paintTheWorld(){
         JLabel turnLabel = (JLabel) contentComponent.getComponent(0);
         turnLabel.setText("T:"+turn);
-        if(turnLabel.getText().length() > 3){
-            turnLabel.setFont(turnLabel.getFont().deriveFont((float)(contentWidth/(2*(this.size+1))-(turnLabel.getText().length()*4))));
-        }
+        float fontSize = (contentWidth/((this.size+1)*(turnLabel.getText().length()-1.2f)));
+        turnLabel.setFont(turnLabel.getFont().deriveFont(fontSize));
         for(Organism var : worldOrganisms) {
             if(!var.getIsDead()){
                 Position position = var.getPosition();
