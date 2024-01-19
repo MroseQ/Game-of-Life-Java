@@ -110,10 +110,8 @@ public class ButtonListener implements ActionListener {
             feedback.setText("Desired path doesn't lead to any file!");
         }else{
             try{
-                World newWorld = world.loadWorld(filePath);
+                world.loadWorld(filePath);
                 feedback.setText("Load Successful!");
-                world.copy(newWorld);
-                world.paintTheWorld();
             }catch (CustomException e){
                 feedback.setText("Load Failed -> " + e.getMessage());
                 System.out.println(e.getMessage());

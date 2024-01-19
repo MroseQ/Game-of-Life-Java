@@ -1,10 +1,14 @@
 package POLO2;
 
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
 import javax.swing.border.LineBorder;
-import javax.swing.plaf.BorderUIResource;
+import javax.swing.event.MouseInputAdapter;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.font.FontRenderContext;
+import java.awt.geom.AffineTransform;
+import java.awt.image.renderable.RenderContext;
 
 import static POLO2.Settings.*;
 
@@ -59,7 +63,7 @@ public class Window {
         footer.add(footerRightSide);
         footer.setLayout(null);
 
-        createButtonAndReturnListener(footerLeftSide,"Next Turn");
+        createButtonWithListener(footerLeftSide,"Next Turn");
 
         ButtonListener saveListener = createButtonAndReturnListener(footerRightSide,"Save World","Save:");
         ButtonListener loadListener = createButtonAndReturnListener(footerRightSide,"Load World","Load:");
@@ -102,12 +106,11 @@ public class Window {
         return listener;
     }
 
-    private ButtonListener createButtonAndReturnListener(JComponent motherPanel,String buttonPrompt){
+    private void createButtonWithListener(JComponent motherPanel, String buttonPrompt){
         JButton button = new JButton(buttonPrompt);
         ButtonListener listener = new ButtonListener(this.world);
         button.addActionListener(listener);
         motherPanel.add(button);
-        return listener;
     }
     public void createContent(JPanel content, int size) {
         content.removeAll();
@@ -128,9 +131,21 @@ public class Window {
         }
     }
 
-    void createGridPanel(int x, int y, JComponent motherPanel){
+    static int returnGraphicsTextLength(JComponent component, String text){
+        FontMetrics fontMetrics = component.getFontMetrics(component.getFont());
+        return fontMetrics.stringWidth(text);
+    }
+
+    void createGridPanel(int y, int x, JComponent motherPanel){
         JPanel frame = new JPanel();
         frame.setBorder(new LineBorder(Color.black,1));
+        frame.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                world.alterGrid(x,y);
+                super.mouseClicked(e);
+            }
+        });
         motherPanel.add(frame);
     }
 

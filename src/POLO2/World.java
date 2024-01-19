@@ -2,6 +2,7 @@ package POLO2;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static POLO2.Settings.*;
-import static java.lang.Math.min;
 import static java.util.Collections.swap;
 
 public class World {
@@ -55,31 +55,69 @@ public class World {
         paintTheWorld();
     }
 
-    void copy(World world){
-        this.worldOrganisms = world.worldOrganisms;
-        world.contentComponent = this.contentComponent;
-        world.eventComponent = this.eventComponent;
-        world.legendComponent = this.legendComponent;
-        this.eventList.clear();
-        for(SystemEvent e : world.eventList){
-            pushEvent(e);
+    Icon createIcon(Color color,int size){
+        BufferedImage image = new BufferedImage(size,size,BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics2D = image.createGraphics();
+
+        graphics2D.setColor(color);
+        graphics2D.fillRect(0,0,size,size);
+        graphics2D.dispose();
+
+        return new ImageIcon(image);
+    }
+
+    void alterGrid(int x, int y){
+        if(isObjectOnPosition(x, y)){
+            Organism var = returnObjectFromPosition(x,y);
+            String objectInformation;
+            if(var instanceof Plant){
+                objectInformation = "Position: " + var.getPosition().print() +
+                        "\nSpawn rate: " + spawnRate+
+                        "\nSince turn: " + var.getAliveSince()
+                        ;
+            }else{
+                objectInformation = "Position: " + var.getPosition().print() +
+                        "\nStrength: " + var.getStrength()+
+                        "\nInitiative: " + var.getInitiative()+
+                        "\nStun: " + var.getStun()+
+                        "\nSince turn: " + var.getAliveSince()
+                        ;
+            }
+            JOptionPane.showMessageDialog(contentComponent,
+                    objectInformation,
+                    "Information of ~~ "+var.getID(),
+                    JOptionPane.INFORMATION_MESSAGE,
+                    createIcon(var.color,50)
+                    );
+        }else{
+            String selectedOrganismName = (String) JOptionPane.showInputDialog(
+                    contentComponent,
+                    "Choose class of a new organism:",
+                    "Add an organism",
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    this.legend.returnSimpleListAsObjectArray(),
+                    null
+            );
+            if(selectedOrganismName != null){
+                Organism var = new OrganismBuilder(this).setPosition(x,y).build(selectedOrganismName);
+                JComponent component = (JComponent) contentComponent.getComponent((this.size+1) *y + x);
+                component.setBackground(var.paint());
+            }
         }
-        this.size = world.size;
-        this.turn = world.turn;
-        this.legend = new Legend();
-        world.window = this.window;
-        window.createContent((JPanel)contentComponent,world.size);
     }
 
     void paintTheWorld(){
         JLabel turnLabel = (JLabel) contentComponent.getComponent(0);
         turnLabel.setText("T:"+turn);
-        float fontSize = (contentWidth/((this.size+1)*(turnLabel.getText().length()-1.2f)));
-        turnLabel.setFont(turnLabel.getFont().deriveFont(fontSize));
+        int width = Window.returnGraphicsTextLength(turnLabel,turnLabel.getText());
+        while(width >= (contentWidth/((this.size+1)))-2){
+            turnLabel.setFont(turnLabel.getFont().deriveFont((float)turnLabel.getFont().getSize()-1));
+            width = Window.returnGraphicsTextLength(turnLabel,turnLabel.getText());
+        }
         for(Organism var : worldOrganisms) {
             if(!var.getIsDead()){
                 Position position = var.getPosition();
-                System.out.println("Breaker: " + var.getPosition().print());
                 JComponent component = (JComponent) contentComponent.getComponent((this.size+1) *position.getY() + position.getX());
                 component.setBackground(var.paint());
             }
@@ -96,6 +134,11 @@ public class World {
             JLabel label = new JLabel(i+ " => "  + eventList.get(i-1).getEvent());
             label.setFont(label.getFont().deriveFont((float)eventHeight/(10+eventList.size())));
             eventComponent.add(label);
+            int width = Window.returnGraphicsTextLength(label,label.getText());
+            while(width >= windowSizeX-contentWidth){
+                label.setFont(label.getFont().deriveFont((float)label.getFont().getSize()-1));
+                width = Window.returnGraphicsTextLength(label,label.getText());
+            }
         }
         eventList.clear();
     }
@@ -141,28 +184,28 @@ public class World {
     void setSize(int size){
         this.size = size;
     }
-    World loadWorld(Path filePath) throws CustomException{
+    void loadWorld(Path filePath) throws CustomException{
         List<String> stringsFromFile;
         try{
             stringsFromFile = Files.readAllLines(filePath);
         }catch(IOException e){
             throw new CustomException(e.toString());
         }
-        World newWorld = new World();
 
         String header = stringsFromFile.getFirst();
         String[] headerFragments =  header.split(";");
 
-        newWorld.setSize(Integer.parseInt(headerFragments[0]));
-        newWorld.setTurn(Integer.parseInt(headerFragments[1]));
+        setSize(Integer.parseInt(headerFragments[0]));
+        setTurn(Integer.parseInt(headerFragments[1]));
         Organism.setNextID(Integer.parseInt(headerFragments[2]));
 
         stringsFromFile.removeFirst();
-
+        this.worldOrganisms.clear();
+        window.createContent((JPanel) contentComponent,this.size);
         while(!stringsFromFile.isEmpty()){
             String line = stringsFromFile.getFirst();
             String[] lineFragments = line.split(";");
-            Organism newOrganism = new OrganismBuilder(newWorld)
+            Organism newOrganism = new OrganismBuilder(this)
                     .setID(lineFragments[1])
                     .setPosition(Position.stringDecoder(lineFragments[2]))
                     .setAfterAction(Boolean.parseBoolean(lineFragments[7]))
@@ -174,7 +217,7 @@ public class World {
             stringsFromFile.removeFirst();
         }
 
-        return newWorld;
+        paintTheWorld();
     }
 
     public Organism checkCollisionOnPosition(Position p, Organism attacker){
