@@ -25,9 +25,10 @@ public abstract class Animal extends Organism {
         this.setPreviousPosition(this.getPosition());
         this.addPosition(randX, randY);
         Organism other = this.getWorld().checkCollisionOnPosition(this.getPosition(), this);
-        this.getWorld().pushEvent(new SystemEvent("Movement of object " + this.getID() + " onto -> " + this.getPosition().print()));
         if (other != null) {
             this.collision(other);
+        }else{
+            this.getWorld().pushEvent(new SystemEvent("Movement of object " + this.getID() + " onto -> " + this.getPosition().print()));
         }
     }
 
