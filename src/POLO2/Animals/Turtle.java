@@ -6,9 +6,9 @@ import java.awt.*;
 import java.util.Random;
 
 public class Turtle extends Animal {
-    public static final Color color = new Color(100,200,0);
+    public static final Color color = new Color(100, 200, 0);
 
-    public Turtle(){
+    public Turtle() {
         super();
         this.setPrefix("Turtle-");
         this.setStrength(2);
@@ -17,19 +17,19 @@ public class Turtle extends Animal {
     }
 
     @Override
-    protected void death(Animal killer){
-        if(killer.getStrength()<5){
+    protected void death(Animal killer) {
+        if (killer.getStrength() < 5) {
             killer.setPosition(killer.getPreviousPosition());
             this.getWorld().pushEvent(new SystemEvent(this.getID() + " has defended himself from " + killer.getID()));
-        }else{
+        } else {
             super.death(killer);
         }
     }
 
     @Override
-    public void action(){
+    protected void action() {
         Random random = new Random();
-        if(random.nextInt(100) >= 75){
+        if (random.nextInt(100) >= 75) {
             super.action();
         }
     }

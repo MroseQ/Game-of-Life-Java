@@ -1,5 +1,5 @@
 package POLO2;
 
-interface CustomAction{
+interface CustomAction {
     void startAction(String s);
 }

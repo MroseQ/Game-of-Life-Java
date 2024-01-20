@@ -9,70 +9,41 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class ButtonListener implements ActionListener {
+    private final World world;
     private JTextField field;
     private ButtonListener parent, related;
     private JLabel feedback;
     private String label;
-    private World world;
     private CustomAction customAction;
 
-    public ButtonListener(World world){
+    public ButtonListener(World world) {
         this.world = world;
     }
 
-    public void setCustomAction(CustomAction customAction){
+    public void setCustomAction(CustomAction customAction) {
         this.customAction = customAction;
     }
 
-    public void buildTextField(JComponent footer, String text){
-        field = new JTextField();
-        field.setBorder(new BevelBorder(BorderUIResource.BevelBorderUIResource.RAISED));
-        field.setBounds(footer.getSize().width/4,footer.getSize().height/16,footer.getSize().width/2,footer.getSize().height/2);
-        field.setVisible(false);
-
-        feedback = new JLabel("Feedback");
-        feedback.setVisible(false);
-        feedback.setVerticalAlignment(SwingConstants.CENTER);
-        feedback.setHorizontalAlignment(SwingConstants.CENTER);
-        feedback.setBounds(footer.getSize().width/4,footer.getSize().height*9/16,footer.getSize().width/2,footer.getSize().height/2);
-        footer.add(feedback);
-
-        label = text;
-
-        JButton confirmButton = new JButton("Confirm");
-        ButtonListener confirmListener = new ButtonListener(world);
-        confirmListener.setParent(this);
-        confirmButton.addActionListener(confirmListener);
-        confirmButton.setSize(field.getSize().width/4,field.getSize().height*3/4);
-        confirmButton.setLocation(field.getSize().width*3/4,field.getSize().height/8);
-        field.add(confirmButton);
-        footer.add(field);
-    }
-
-    public void setParent(ButtonListener parent){
+    public void setParent(ButtonListener parent) {
         this.parent = parent;
     }
 
-    public void setRelatedForBoth(ButtonListener related){
+    public void setRelatedForBoth(ButtonListener related) {
         this.related = related;
         related.related = this;
     }
 
     @Override
-    public void actionPerformed(ActionEvent e){
-        switch(e.getActionCommand()){
+    public void actionPerformed(ActionEvent e) {
+        switch (e.getActionCommand()) {
             case "Next Turn":
-                System.out.println("NextTurn");
                 world.performTurns();
                 break;
             case "Save World":
-                changeVisibility();
-                break;
             case "Load World":
                 changeVisibility();
                 break;
             case "Confirm":
-                System.out.println("SEIMA");
                 parent.field.setVisible(false);
                 parent.customAction.startAction(parent.field.getText());
                 break;
@@ -81,7 +52,62 @@ public class ButtonListener implements ActionListener {
         }
     }
 
-    void changeVisibility(){
+    protected void buildTextField(JComponent footer, String text) {
+        field = new JTextField();
+        field.setBorder(new BevelBorder(BorderUIResource.BevelBorderUIResource.RAISED));
+        field.setBounds(footer.getSize().width / 4, footer.getSize().height / 16, footer.getSize().width / 2, footer.getSize().height / 2);
+        field.setVisible(false);
+
+        feedback = new JLabel("Feedback");
+        feedback.setVisible(false);
+        feedback.setVerticalAlignment(SwingConstants.CENTER);
+        feedback.setHorizontalAlignment(SwingConstants.CENTER);
+        feedback.setBounds(footer.getSize().width / 4, footer.getSize().height * 9 / 16, footer.getSize().width / 2, footer.getSize().height / 2);
+        footer.add(feedback);
+
+        label = text;
+
+        JButton confirmButton = new JButton("Confirm");
+        ButtonListener confirmListener = new ButtonListener(world);
+        confirmListener.setParent(this);
+        confirmButton.addActionListener(confirmListener);
+        confirmButton.setSize(field.getSize().width / 4, field.getSize().height * 3 / 4);
+        confirmButton.setLocation(field.getSize().width * 3 / 4, field.getSize().height / 8);
+        field.add(confirmButton);
+        footer.add(field);
+    }
+
+    protected void checkForSave(String fileName) {
+        Path filePath = returnPathOfFile(fileName);
+        if (!fileName.isEmpty()) {
+            try {
+                world.saveWorld(filePath);
+                feedback.setText("Save Successful to " + fileName + ".");
+            } catch (CustomException e) {
+                feedback.setText("Save Failed -> " + e.getMessage());
+                System.out.println(e.getMessage());
+            }
+        } else {
+            feedback.setText(("File name cannot be empty."));
+        }
+    }
+
+    protected void checkForLoad(String fileName) {
+        Path filePath = returnPathOfFile(fileName);
+        if (!Files.exists(filePath)) {
+            feedback.setText("Desired path doesn't lead to any file!");
+        } else {
+            try {
+                world.loadWorld(filePath);
+                feedback.setText("Load Successful!");
+            } catch (CustomException e) {
+                feedback.setText("Load Failed -> " + e.getMessage());
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    private void changeVisibility() {
         field.setVisible((!field.isVisible()));
         related.field.setVisible(false);
         related.feedback.setVisible(false);
@@ -89,40 +115,10 @@ public class ButtonListener implements ActionListener {
         feedback.setVisible((field.isVisible()));
     }
 
-    void checkForSave(String fileName){
-        Path filePath = returnPathOfFile(fileName);
-        if(!fileName.isEmpty()){
-            try{
-                world.saveWorld(filePath);
-                feedback.setText("Save Successful to "+fileName+".");
-            }catch (CustomException e){
-                feedback.setText("Save Failed -> " + e.getMessage());
-                System.out.println(e.getMessage());
-            }
-        }else{
-            feedback.setText(("File name cannot be empty."));
-        }
-    }
-
-    void checkForLoad(String fileName){
-        Path filePath = returnPathOfFile(fileName);
-        if(!Files.exists(filePath)){
-            feedback.setText("Desired path doesn't lead to any file!");
-        }else{
-            try{
-                world.loadWorld(filePath);
-                feedback.setText("Load Successful!");
-            }catch (CustomException e){
-                feedback.setText("Load Failed -> " + e.getMessage());
-                System.out.println(e.getMessage());
-            }
-        }
-    }
-
-    Path returnPathOfFile(String fileName){
+    private Path returnPathOfFile(String fileName) {
         fileName = fileName.toLowerCase();
-        if(!fileName.endsWith(".txt")){
-            fileName+=".txt";
+        if (!fileName.endsWith(".txt")) {
+            fileName += ".txt";
         }
         return Path.of(fileName);
     }
